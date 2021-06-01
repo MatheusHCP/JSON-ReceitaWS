@@ -1,0 +1,47 @@
+ $("#cnpj").blur(function () {
+
+            //Nova variável "cnpj" somente com dígitos.
+            var cnpj = $(this).val().replace(/\D/g, '');
+
+            //Verifica se campo cnpj possui valor informado.
+            if (cnpj != "") {
+
+                //Expressão regular para validar o CNPJ.
+                var validacnpj = /^[0-9]/;
+
+                //Valida o formato do CNPJ.
+                if (validacnpj.test(cnpj)) {
+
+                    //Preenche os campos com "..." enquanto consulta webservice.
+                    $("#EmpNomeFantasia").val("...")
+                    $("#EmpRazaoSocial").val("...")
+                    $("#EmpEmail").val("...")
+
+                    $.getJSON("http://receitaws.com.br/v1/cnpj/" + cnpj, function (dados) {
+
+                        console.log(JSON.stringify(dados));
+
+                        if (!("erro" in dados)) {
+                            //Atualiza os campos com os valores da consulta.
+                            $("#EmpNomeFantasia").val(dados.fantasia);
+                            $("#EmpRazaoSocial").val(dados.nome);
+                            $("#EmpEmail").val(dados.email);
+                        } //end if.
+                        else {
+                            //Cnpj pesquisado não foi encontrado.
+                            limpa_formulário_cnpj();
+                            alert("CNPJ não encontrado.");
+                        }
+                    });
+                } //end if.
+                else {
+                    //cnpj é inválido.
+                    limpa_formulário_cnpj();
+                    alert("Formato de CNPJ inválido.");
+                }
+            } //end if.
+            else {
+                //cnpj sem valor, limpa formulário.
+                limpa_formulário_cnpj();
+            }
+        });
